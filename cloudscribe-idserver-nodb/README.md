@@ -1,6 +1,8 @@
-## This StarterKit is meant only as a Reference
-The main goal of this StarterKit is to provide an example with working clients as explained below. It is not intended to use as a basis for starting a new project. I would not recommend using NoDb storage for a real production IdentityServer installation.
-To create new projects, it is now recommended to use our new project template for Visual Studio or the .NET CLI, as explained in the [Introduction](https://www.cloudscribe.com/docs/introduction)
+## This Sample Has Working IdentityServer4 Clients
+
+If you are having any trouble gettings your own clients working with cloudscribe Core and IdentityServer4 integration, this solution provides a good reference.
+
+If you are new to cloudscribe please see the [Introduction](https://www.cloudscribe.com/docs/introduction)
 
 # Using cloudscribe Core with IdentityServer4 and NoDb 
 
