@@ -13,7 +13,7 @@ You can also edit the ClientApp1/Main.ts file which has a simple greeter, you ca
 
 ## Vanilla Typescript app sample
 
-There is a bassic hellow world vanilla typescript client app. It is hosted in a simplecontent page and is already in the menu.
+There is a basic hello world vanilla typescript client app. It is hosted in a simplecontent page and is already in the menu.
 
 
 ## React/Redux/Typescript sample
