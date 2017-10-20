@@ -26,6 +26,7 @@ For webpack you need node and npm. Visual Studio 2017 ships with a really old ve
 You can add the path there for your newer installation of Node ie c:\Program Files\nodejs
 
 I think you also need this visual studio extension https://marketplace.visualstudio.com/items?itemName=MadsKristensen.NPMTaskRunner
+
 I have this one on my machine as well https://marketplace.visualstudio.com/items?itemName=MadsKristensen.WebExtensionPack2017
 
 
