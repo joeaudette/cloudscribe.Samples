@@ -20,4 +20,10 @@ There is a basic hello world vanilla typescript client app. It is hosted in a si
 
 There is also a react/redux/typescript app also hosted in a simplecontent page, already in the menu when you run the app.
 
+## Prerequisites
+
+For webpack you need node and npm. Visual Studio 2017 ships with a really old version of Node that is not going to work with this solution. You can install the latest Node LTS version and then configure Visual Studio to use your newer version under Tools > Options > Projects and Solutions > Web Package Management > External Tools
+You can add the path there for your newer installation of Node ie c:\Program Files\nodejs
+
+
 
