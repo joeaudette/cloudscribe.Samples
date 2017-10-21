@@ -29,5 +29,30 @@ I think you also need this visual studio extension https://marketplace.visualstu
 
 I have this one on my machine as well https://marketplace.visualstudio.com/items?itemName=MadsKristensen.WebExtensionPack2017
 
+## Setup on Linux
 
+You need git installed
+You need nodejs installed
+You need npm installed
+
+sudo apt-get update
+sudo apt-get install git
+sudo apt-get install nodejs
+sudo apt-get install npm
+
+On Ubuntu 16.04 node still did not work after install it was not found. Had to run:
+
+sudo ln -s /usr/bin/nodejs /usr/bin/node
+
+now node --version reports 4.2.6
+
+git clone https://github.com/joeaudette/cloudscribe.Samples.git
+
+Had to cd into the WebApp folder and run npm install to install the package.json deps
+
+Then cd back up to the WebpackSample solution folder and run dotnet build
+
+Then cd in WebApp again and dotnet run
+
+Finally open browser at http://localhost:47383
 
