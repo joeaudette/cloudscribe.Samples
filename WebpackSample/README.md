@@ -34,11 +34,17 @@ I think you also need this visual studio extension https://marketplace.visualstu
 
 I have this one on my machine as well https://marketplace.visualstudio.com/items?itemName=MadsKristensen.WebExtensionPack2017
 
-## Setup on Linux
+## Setup on Ubuntu Linux
+
+* You need .NET Core SDK installed https://www.microsoft.com/net/core#linuxubuntu
+* It is also nice to have VSCode but not required https://code.visualstudio.com/download
+
 
 * You need git installed
 * You need nodejs installed
 * You need npm installed
+
+### Commands
 
 * sudo apt-get update
 * sudo apt-get install git
