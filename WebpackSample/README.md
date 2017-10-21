@@ -31,14 +31,14 @@ I have this one on my machine as well https://marketplace.visualstudio.com/items
 
 ## Setup on Linux
 
-You need git installed
-You need nodejs installed
-You need npm installed
+* You need git installed
+* You need nodejs installed
+* You need npm installed
 
-sudo apt-get update
-sudo apt-get install git
-sudo apt-get install nodejs
-sudo apt-get install npm
+* sudo apt-get update
+* sudo apt-get install git
+* sudo apt-get install nodejs
+* sudo apt-get install npm
 
 On Ubuntu 16.04 node still did not work after install it was not found. Had to run:
 
