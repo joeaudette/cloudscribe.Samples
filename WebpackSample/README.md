@@ -15,10 +15,13 @@ You can also edit the ClientApp1/Main.ts file which has a simple greeter, you ca
 
 There is a basic hello world vanilla typescript client app. It is hosted in a simplecontent page and is already in the menu.
 
+![ts-app-ws](https://user-images.githubusercontent.com/101627/31852520-1143327e-b647-11e7-9fd8-e9ea36892c3a.jpg)
 
 ## React/Redux/Typescript sample
 
 There is also a react/redux/typescript app also hosted in a simplecontent page, already in the menu when you run the app.
+
+![react-app-ws](https://user-images.githubusercontent.com/101627/31852522-16f530be-b647-11e7-88bd-0a4f8f646048.jpg)
 
 ## Setup for Visual Studio 2017
 
