@@ -19,7 +19,7 @@ There is a basic hello world vanilla typescript client app. It is hosted in a si
 
 ## React/Redux/Typescript sample
 
-There is also a react/redux/typescript app also hosted in a simplecontent page, already in the menu when you run the app.
+There is also a react/redux/typescript app also hosted in a simplecontent page, already in the menu when you run the app. The react app was borrowed directly from the Microsoft SPA Template for react/redux, with just a few minor style tweaks.
 
 ![react-app-ws](https://user-images.githubusercontent.com/101627/31852522-16f530be-b647-11e7-88bd-0a4f8f646048.jpg)
 
