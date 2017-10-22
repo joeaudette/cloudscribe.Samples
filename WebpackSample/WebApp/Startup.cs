@@ -210,7 +210,13 @@ namespace WebApp
             app.UseForwardedHeaders();
             //app.UseStaticFiles();
             //https://github.com/aspnet/StaticFiles/issues/7
-            app.UseStaticFiles(StaticFileOptions);
+            // we are pre-gzipping js and css from webpack
+            // this allows us to map the requests for .min.js to .min.js.gz and .min.css to .min.css.gz if the file exists
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                OnPrepareResponse = GzipMappingFileProvider.OnPrepareResponse,
+                FileProvider = new GzipMappingFileProvider(Environment.WebRootFileProvider)
+            });
             //app.UseSession();
 
             app.UseRequestLocalization(localizationOptionsAccessor.Value);
@@ -338,68 +344,7 @@ namespace WebApp
 
         }
 
-        //https://github.com/aspnet/StaticFiles/issues/7
-        private StaticFileOptions StaticFileOptions
-        {
-            get
-            {
-                return new StaticFileOptions
-                {
-                    OnPrepareResponse = OnPrepareResponse
-                };
-            }
-        }
-
-        private void OnPrepareResponse(StaticFileResponseContext context)
-        {
-            var file = context.File;
-            var request = context.Context.Request;
-            var response = context.Context.Response;
-
-            var queryString = context.Context.Request.QueryString.Value;
-
-            if (file.Name.EndsWith(".gz"))
-            {
-                response.Headers[HeaderNames.ContentEncoding] = "gzip";
-                if(file.Name.EndsWith(".css.gz"))
-                {
-                    response.Headers[HeaderNames.ContentType] = "text/css";
-                }
-                if (file.Name.EndsWith(".js.gz"))
-                {
-                    response.Headers[HeaderNames.ContentType] = "text/javascript";
-                }
-                return;
-            }
-
-            if (file.Name.IndexOf(".min.", StringComparison.OrdinalIgnoreCase) != -1)
-            {
-                var requestPath = request.Path.Value;
-                var filePath = file.PhysicalPath;
-
-                if (Environment.IsDevelopment())
-                {
-                    if (File.Exists(filePath.Replace(".min.", ".")))
-                    {
-                        response.StatusCode = (int)HttpStatusCode.TemporaryRedirect;
-                        response.Headers[HeaderNames.Location] = requestPath.Replace(".min.", ".");
-                    }
-                }
-                else
-                {
-                    var acceptEncoding = (string)request.Headers[HeaderNames.AcceptEncoding];
-                    if (acceptEncoding.IndexOf("gzip", StringComparison.OrdinalIgnoreCase) != -1)
-                    {
-                        if (File.Exists(filePath + ".gz"))
-                        {
-                            response.StatusCode = (int)HttpStatusCode.MovedPermanently;
-                            response.Headers[HeaderNames.Location] = requestPath + ".gz" + queryString;
-                        }
-                    }
-                }
-            }
-        }
-
+       
 
     }
 }
