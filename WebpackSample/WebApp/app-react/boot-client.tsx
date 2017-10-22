@@ -1,5 +1,3 @@
-//import './css/site.css';
-//import 'bootstrap';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
@@ -34,10 +32,3 @@ function renderApp() {
 
 renderApp();
 
-// Allow Hot Module Replacement
-//if (module.hot) {
-//    module.hot.accept('./routes', () => {
-//        routes = require<typeof RoutesModule>('./routes').routes;
-//        renderApp();
-//    });
-//}

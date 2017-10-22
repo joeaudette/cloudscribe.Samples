@@ -6,13 +6,24 @@ const config = {
     entry: {
         'app-react': './app-react/boot-client.tsx',
         'app-react-server': './app-react/boot-server.tsx',
-        'clientapp1': ['./ClientApp1/Main.ts'],
-        'mainstyle': './scss/style.scss'
+        'vanilla': './app-vanilla/Main.ts',
+        'boot': './app-vendor/boot.js',
+        'mainstyle': './app-scss/style.scss'
     },
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'wwwroot/dist/'),
         publicPath: 'dist/'
+    },
+    resolve: {
+        modules: [path.join(__dirname, "./node_modules/")],
+        extensions: [".tsx", ".ts", ".js", ".scss"]
+    },
+    devtool: 'source-map',
+    externals: {
+        // require("jquery") is external and available
+        //  on the global var jQuery
+        "jquery": "jQuery"
     },
     module: {
         rules: [
@@ -30,14 +41,7 @@ const config = {
                     fallback: 'style-loader',
                     use: ['css-loader', 'sass-loader']
                 }),
-                
-                
             },
-            //{
-            //    test: /\.tsx?$/,
-            //    include: /ClientApp/,
-            //    use: 'awesome-typescript-loader?silent=true'
-            //},
             {
                 test: /\.tsx?$/,
                 loader: 'ts-loader',
@@ -45,11 +49,6 @@ const config = {
             },
         ]
     },
-    resolve: {
-        modules: [path.join(__dirname,"./node_modules/")],
-        extensions: [".tsx", ".ts", ".js", ".scss"]
-    },
-    devtool: 'source-map',
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NamedModulesPlugin(),
