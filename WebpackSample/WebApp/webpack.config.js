@@ -13,7 +13,7 @@ const config = {
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'wwwroot/dist/'),
-        publicPath: 'dist/'
+        publicPath: '/dist/'
     },
     resolve: {
         modules: [path.join(__dirname, "./node_modules/")],
