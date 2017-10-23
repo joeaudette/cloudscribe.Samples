@@ -215,7 +215,11 @@ namespace WebApp
             app.UseStaticFiles(new StaticFileOptions()
             {
                 OnPrepareResponse = GzipMappingFileProvider.OnPrepareResponse,
-                FileProvider = new GzipMappingFileProvider(Environment.WebRootFileProvider)
+                FileProvider = new GzipMappingFileProvider(
+                    loggerFactory,
+                    true,
+                    Environment.WebRootFileProvider
+                    )
             });
             //app.UseSession();
 
