@@ -43,6 +43,29 @@ The Tenant1SpaPolymer client is at http://localhost:5010
 
 The Tenant2SpPolyment client is at http://localhost:5011
 
+The client must use the correct url for the identityserver tenant that is governing it. ie in the sample the Tenant2SpaPolymer client is specifiying the url for the second tenant in the attributes in the [index.html](https://github.com/joeaudette/cloudscribe.Samples/blob/master/cloudscribe-idserver-nodb/Tenant2SpaPolymer/wwwroot/index.html) like this:
+
+    <my-app authority="http://localhost:50405/two"
+            client-id="polymerclient2"
+            scopes="openid profile tenant2Spa" 
+            redirect-uri="http://localhost:5011/index.html?action=popupcallback"
+            silent-redirect-uri="http://localhost:5011/silent-renew.html"
+            post-logout-redirect-uri="http://localhost:5011/"
+            sample-api-uri="http://localhost:5011/api/identity"></my-app>
+
+Notice the folder segment "two" in the authority url because the sample is using folder based mutli-tenancy, if it were host name based then it would just use the host name.
+
+The Tenant1SpaPolymer client is configured in it's [index.html](https://github.com/joeaudette/cloudscribe.Samples/blob/master/cloudscribe-idserver-nodb/Tenant1SpaPolymer/wwwroot/index.html) like this, without any url segment because it uses the root tenant as its authority:
+
+    <my-app authority="http://localhost:50405"
+            client-id="polymerclient"
+            scopes="openid profile tenant1Spa" 
+            redirect-uri="http://localhost:5010/index.html?action=popupcallback"
+            silent-redirect-uri="http://localhost:5010/silent-renew.html"
+            post-logout-redirect-uri="http://localhost:5010/"
+            sample-api-uri="http://localhost:5010/api/identity"></my-app>
+
+Note that I wrote a polymer wrapper around the [oidc-client.js](https://github.com/IdentityModel/oidc-client-js)
 
 
 ##### Screenshots
