@@ -2,7 +2,7 @@
 
 If you are new to cloudscribe please see the [Introduction](https://www.cloudscribe.com/docs/introduction), to learn how to create projects using our project template for Visual Studio or our project template for the .NET Core CLI.
 
-The main goal of this repository is to provide some working samples with pre-populated data, because some concepts are easier to understand when you can see them working with real data. These sampes generally use NoDb file system storage which makes it easy to have demos with pre-populated data because the data is just files on disk.
+The main goal of this repository is to provide some working samples with pre-populated data, because some concepts are easier to understand when you can see them working with real data. These samples generally use NoDb file system storage which makes it easy to have demos with pre-populated data because the data is just files on disk.
 
 ## IdentityServer4 Integration Sample with Working Clients
 
