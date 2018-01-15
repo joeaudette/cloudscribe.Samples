@@ -9,16 +9,17 @@
     <title>@ViewData["Title"] - @(Tenant?.SiteName ?? "Sample")</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     @RenderSection("Meta", required: false)
-	<environment names="Development">
+    <environment names="Development">
         <link rel="stylesheet" href="~/cssmin/themes/default/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     </environment>
     <environment names="Staging,Production">
-        <link rel="stylesheet" href="~/cssmin/themes/default/bootstrap.min.css"  />
+        <link rel="stylesheet" href="~/cssmin/themes/default/bootstrap.min.css" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
     @RenderSection("Styles", required: false)
-	<google-analytics profile-id="@Tenant.GoogleAnalyticsProfileId" user-id="@User.GetUserId()"></google-analytics>
+    <google-analytics profile-id="@Tenant.GoogleAnalyticsProfileId" user-id="@User.GetUserId()"></google-analytics>
+    <base href="@Context.Request.Path" />
 </head>
 <body class="@ViewData["BodyClass"]">
     <div class="navbar navbar-inverse navbar-fixed-top">
