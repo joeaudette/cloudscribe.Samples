@@ -13,26 +13,85 @@ using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace OPServer
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(
+            IConfiguration configuration,
+            IHostingEnvironment env,
+            ILogger<Startup> logger
+            )
         {
             Configuration = configuration;
+            Environment = env;
+            _log = logger;
+            SslIsAvailable = Configuration.GetValue<bool>("AppSettings:UseSsl");
+            DisableIdentityServer = Configuration.GetValue<bool>("AppSettings:DisableIdentityServer");
         }
 
-        public IConfiguration Configuration { get; }
-        public bool SslIsAvailable { get; set; }
+        private IConfiguration Configuration { get; }
+        private IHostingEnvironment Environment { get; set; }
+        private bool SslIsAvailable { get; set; }
+        private bool DisableIdentityServer { get; set; }
+        private bool didSetupIdServer = false;
+        private ILogger _log;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //string pathToCryptoKeys = Path.Combine(environment.ContentRootPath, "dp_keys");
-            services.AddDataProtection()
-                // .PersistKeysToFileSystem(new System.IO.DirectoryInfo(pathToCryptoKeys))
-                ;
+            // **** VERY IMPORTANT *****
+            // https://www.cloudscribe.com/docs/configuring-data-protection
+            // data protection keys are used to encrypt the auth token in the cookie
+            // and also to encrypt social auth secrets and smtp password in the data storage
+            // therefore we need keys to be persistent in order to be able to decrypt
+            // if you move an app to different hosting and the keys change then you would have
+            // to update those settings again from the Administration UI
+
+            // for IIS hosting you should use a powershell script to create a keyring in the registry
+            // per application pool and use a different application pool per app
+            // https://docs.microsoft.com/en-us/aspnet/core/publishing/iis#data-protection
+            // https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?tabs=aspnetcore2x
+            if (Environment.IsProduction())
+            {
+                // If using Azure for production the uri with sas token could be stored in azure as environment variable or using key vault
+                // but the keys go in azure blob storage per docs https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/implementation/key-storage-providers
+                // this is false by default you should set it to true in azure environment variables
+                var useBlobStroageForDataProtection = Configuration.GetValue<bool>("AppSettings:UseAzureBlobForDataProtection");
+                // best to put this in azure environment variables instead of appsettings.json
+                var storageConnectionString = Configuration["AppSettings:DataProtectionBlobStorageConnectionString"];
+                if (useBlobStroageForDataProtection && !string.IsNullOrWhiteSpace(storageConnectionString))
+                {
+                    var storageAccount = Microsoft.WindowsAzure.Storage.CloudStorageAccount.Parse(storageConnectionString);
+                    var client = storageAccount.CreateCloudBlobClient();
+                    var container = client.GetContainerReference("key-container");
+                    // The container must exist before calling the DataProtection APIs.
+                    // The specific file within the container does not have to exist,
+                    // as it will be created on-demand.
+                    container.CreateIfNotExistsAsync().GetAwaiter().GetResult();
+                    services.AddDataProtection()
+                        .PersistKeysToAzureBlobStorage(container, "keys.xml");
+
+                }
+                else
+                {
+                    services.AddDataProtection();
+                }
+            }
+            else
+            {
+                // dp_Keys folder should be added to .gitignore so the keys don't go into source control
+                // ie add a line with: **/dp_keys/**
+                // to your .gitignore file
+                string pathToCryptoKeys = Path.Combine(Environment.ContentRootPath, "dp_keys");
+                services.AddDataProtection()
+                    .PersistKeysToFileSystem(new System.IO.DirectoryInfo(pathToCryptoKeys))
+                    ;
+            }
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -48,21 +107,80 @@ namespace OPServer
             services.AddOptions();
 
             services.AddCloudscribeCoreNoDbStorage();
-
-            // only needed if using cloudscribe logging with EF storage
             services.AddCloudscribeLoggingNoDbStorage(Configuration);
             services.AddCloudscribeLogging();
 
-            services.AddCloudscribeCoreMvc(Configuration);
+
 
             //var cert = new X509Certificate2(Path.Combine(environment.ContentRootPath, "yourcustomcert.pfx"), "");
-            services.AddIdentityServerConfiguredForCloudscribe()
+            //services.AddIdentityServerConfiguredForCloudscribe()
+            //            .AddCloudscribeCoreNoDbIdentityServerStorage()
+            //            .AddCloudscribeIdentityServerIntegrationMvc()
+            //            // https://identityserver4.readthedocs.io/en/dev/topics/crypto.html
+            //            //.AddSigningCredential(cert) // create a certificate for use in production
+            //            .AddDeveloperSigningCredential() // don't use this for production
+            //            ;
+            if (!DisableIdentityServer)
+            {
+                try
+                {
+                    var idsBuilder = services.AddIdentityServerConfiguredForCloudscribe()
                         .AddCloudscribeCoreNoDbIdentityServerStorage()
-                        .AddCloudscribeIdentityServerIntegrationMvc()
+                        .AddCloudscribeIdentityServerIntegrationMvc();
+                    if (Environment.IsProduction())
+                    {
+                        // *** IMPORTANT CONFIGURATION NEEDED HERE *** 
+                        // can't use .AddDeveloperSigningCredential in production it will throw an error
                         // https://identityserver4.readthedocs.io/en/dev/topics/crypto.html
-                        //.AddSigningCredential(cert) // create a certificate for use in production
-                        .AddDeveloperSigningCredential() // don't use this for production
-                        ;
+                        // https://identityserver4.readthedocs.io/en/dev/topics/startup.html#refstartupkeymaterial
+                        // you need to create an X.509 certificate (can be self signed)
+                        // on your server and configure the cert file path and password name in appsettings.json
+                        // OR change this code to wire up a certificate differently
+                        _log.LogWarning("setting up identityserver4 for production");
+                        var certPath = Configuration.GetValue<string>("AppSettings:IdServerSigningCertPath");
+                        var certPwd = Configuration.GetValue<string>("AppSettings:IdServerSigningCertPassword");
+                        if (!string.IsNullOrWhiteSpace(certPath) && !string.IsNullOrWhiteSpace(certPwd))
+                        {
+                            var cert = new X509Certificate2(
+                            File.ReadAllBytes(certPath),
+                            certPwd,
+                            X509KeyStorageFlags.MachineKeySet |
+                            X509KeyStorageFlags.PersistKeySet |
+                            X509KeyStorageFlags.Exportable);
+
+                            idsBuilder.AddSigningCredential(cert);
+                            didSetupIdServer = true;
+                        }
+
+                    }
+                    else
+                    {
+                        idsBuilder.AddDeveloperSigningCredential(); // don't use this for production
+                        didSetupIdServer = true;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"failed to setup identityserver4 {ex.Message} {ex.StackTrace}");
+                }
+
+
+
+            }
+
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5010", "http://localhost:5011", "http://localhost:50405", "https://localhost:44363")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
+            services.AddCloudscribeCoreMvc(Configuration);
 
             // optional but recommended if you need localization 
             // uncomment to use cloudscribe.Web.localization https://github.com/joeaudette/cloudscribe.Web.Localization
@@ -106,18 +224,7 @@ namespace OPServer
                 //}));
             });
 
-            services.AddCors(options =>
-            {
-                // this defines a CORS policy called "default"
-                options.AddPolicy("default", policy =>
-                {
-                    policy.WithOrigins("http://localhost:5010", "http://localhost:5011", "http://localhost:50405", "https://localhost:44363")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-            });
-
-            SslIsAvailable = Configuration.GetValue<bool>("AppSettings:UseSsl");
+            
             services.Configure<MvcOptions>(options =>
             {
                 if (SslIsAvailable)
@@ -144,6 +251,14 @@ namespace OPServer
                     options.AddCloudscribeCoreIdentityServerIntegrationBootstrap3Views();
 
                     options.ViewLocationExpanders.Add(new cloudscribe.Core.Web.Components.SiteViewLocationExpander());
+                });
+
+            services.AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
+                {
+                    options.Authority = "http://localhost:50405";
+                    options.Audience = "idserverapi";
+                    options.RequireHttpsMetadata = false;
                 });
         }
 
@@ -181,7 +296,17 @@ namespace OPServer
                     multiTenantOptions,
                     SslIsAvailable);
 
-            app.UseIdentityServer();
+            if (!DisableIdentityServer && didSetupIdServer)
+            {
+                try
+                {
+                    app.UseIdentityServer();
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"failed to setup identityserver4 {ex.Message} {ex.StackTrace}");
+                }
+            }
 
             UseMvc(app, multiTenantOptions.Mode == cloudscribe.Core.Models.MultiTenantMode.FolderName);
 
