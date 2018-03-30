@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.DataProtection;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using IdentityServer4.AccessTokenValidation;
 
 namespace OPServer
 {
@@ -109,17 +110,7 @@ namespace OPServer
             services.AddCloudscribeCoreNoDbStorage();
             services.AddCloudscribeLoggingNoDbStorage(Configuration);
             services.AddCloudscribeLogging();
-
-
-
-            //var cert = new X509Certificate2(Path.Combine(environment.ContentRootPath, "yourcustomcert.pfx"), "");
-            //services.AddIdentityServerConfiguredForCloudscribe()
-            //            .AddCloudscribeCoreNoDbIdentityServerStorage()
-            //            .AddCloudscribeIdentityServerIntegrationMvc()
-            //            // https://identityserver4.readthedocs.io/en/dev/topics/crypto.html
-            //            //.AddSigningCredential(cert) // create a certificate for use in production
-            //            .AddDeveloperSigningCredential() // don't use this for production
-            //            ;
+            
             if (!DisableIdentityServer)
             {
                 try
@@ -151,6 +142,11 @@ namespace OPServer
                             idsBuilder.AddSigningCredential(cert);
                             didSetupIdServer = true;
                         }
+                        else
+                        {
+                            idsBuilder.AddDeveloperSigningCredential(); // don't use this for production
+                            didSetupIdServer = true;
+                        }
 
                     }
                     else
@@ -174,7 +170,7 @@ namespace OPServer
                 // this defines a CORS policy called "default"
                 options.AddPolicy("default", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5010", "http://localhost:5011", "http://localhost:50405", "https://localhost:44363")
+                    policy.AllowAnyOrigin()   //.WithOrigins("http://localhost:5010", "http://localhost:5011" , "http://localhost:5012", "http://localhost:50405", "https://localhost:44363")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
@@ -253,13 +249,27 @@ namespace OPServer
                     options.ViewLocationExpanders.Add(new cloudscribe.Core.Web.Components.SiteViewLocationExpander());
                 });
 
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
+            //services.AddAuthentication("Bearer")
+            //    .AddJwtBearer("Bearer", options =>
+            //    {
+            //        options.Authority = "http://localhost:50405";
+            //        options.Audience = "idserverapi";
+            //        options.RequireHttpsMetadata = false;
+            //    });
+
+            services.AddAuthentication()
+                .AddIdentityServerAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme, options =>
                 {
+                    //TO Test the xamarin client requires https so use IIS with the https url
                     options.Authority = "http://localhost:50405";
-                    options.Audience = "idserverapi";
+                    //options.Authority = "https://localhost:44363";
+
+                    options.ApiName = "idserverapi";
+                    options.ApiSecret = "secret";
                     options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
                 });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
