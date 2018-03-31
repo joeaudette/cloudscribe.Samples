@@ -17,6 +17,9 @@ using Microsoft.AspNetCore.DataProtection;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using IdentityServer4.AccessTokenValidation;
+using IdentityServer4.Services;
+using OPServer.Components.IdServer;
+using IdentityServer4.Validation;
 
 namespace OPServer
 {
@@ -115,6 +118,10 @@ namespace OPServer
             {
                 try
                 {
+                    //customization
+                    services.AddTransient<ICorsPolicyService, IdServerCorsPolicy>();
+                    services.AddTransient<IRedirectUriValidator, IdServerRedirectValidator>();
+
                     var idsBuilder = services.AddIdentityServerConfiguredForCloudscribe()
                         .AddCloudscribeCoreNoDbIdentityServerStorage()
                         .AddCloudscribeIdentityServerIntegrationMvc();

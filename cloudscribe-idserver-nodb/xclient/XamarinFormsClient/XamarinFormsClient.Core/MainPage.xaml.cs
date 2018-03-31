@@ -41,6 +41,7 @@ namespace XamarinFormsClient.Core
             {
                 Authority = "http://10.0.2.2:50405/", 
                 ClientId = "native.hybrid",
+                //ClientSecret = "K7gNU3sdo+OL0wNhqoVWhr3g6s1xYv72ol/pe/Unols=",
                 Scope = "openid profile email idserverapi offline_access",
                 RedirectUri = "xamarinformsclients://callback",
                 PostLogoutRedirectUri = "xamarinformsclients://callback",
@@ -50,6 +51,7 @@ namespace XamarinFormsClient.Core
                 {
                     Discovery = new DiscoveryPolicy() { RequireHttps = false }
                 }
+               
 
 
             };
