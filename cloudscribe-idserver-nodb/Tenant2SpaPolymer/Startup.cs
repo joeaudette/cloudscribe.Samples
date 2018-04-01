@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,7 +24,10 @@ namespace Tenant2SpaPolymer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            services.AddMvcCore()
+                .AddAuthorization()
+                .AddJsonFormatters();
+
             services.AddAuthorization(options =>
             {
 
@@ -43,26 +47,32 @@ namespace Tenant2SpaPolymer
 
             });
 
-            services.AddMvcCore()
-                .AddAuthorization()
-                .AddJsonFormatters();
-
-            services.AddAuthentication("Bearer")
-                .AddJwtBearer("Bearer", options =>
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme, options =>
                 {
                     options.Authority = "http://localhost:50405/two";
-                    options.Audience = "tenant2Spa";
+                    options.ApiName = "tenant2Spa";
                     options.RequireHttpsMetadata = false;
                 });
+
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy named "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            
             // this uses the policy called "default"
-            //app.UseCors("default");
-
+            app.UseCors("default");
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseAuthentication();

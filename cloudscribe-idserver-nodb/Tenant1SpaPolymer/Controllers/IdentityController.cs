@@ -8,7 +8,7 @@ namespace Tenant1SpaPolymer.Controllers
     [Authorize]
     public class IdentityController : ControllerBase
     {
-        // [Authorize(Policy = "AdminPolicy")]
+        [Authorize(Policy = "SecureApiPolicy")]
         [HttpGet]
         public IActionResult Get()
         {
