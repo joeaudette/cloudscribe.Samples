@@ -16,12 +16,12 @@
     <Content Remove="wwwroot\lib\**\*" CopyToPublishDirectory="Never" />
     <Content Remove="bower.json" CopyToPublishDirectory="Never" />
     <Content Remove="bundleconfig.json" CopyToPublishDirectory="Never" />
-    <Content Remove="appsettings.Development.json" CopyToPublishDirectory="Never" />
+    <!--<Content Remove="appsettings.Development.json" CopyToPublishDirectory="Never" />-->
 
     <Content Include="wwwroot\lib\**\*" CopyToPublishDirectory="Never" />
     <Content Include="bower.json" CopyToPublishDirectory="Never" />
     <Content Include="bundleconfig.json" CopyToPublishDirectory="Never" />
-    <Content Include="appsettings.Development.json" CopyToPublishDirectory="Never" />
+    <!--<Content Include="appsettings.Development.json" CopyToPublishDirectory="Never" />-->
 
     <Content Include="**\sitefiles\**\wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="SharedThemes\**\wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
@@ -37,7 +37,7 @@
     <PackageReference Include="cloudscribe.Core.IdentityServerIntegration.Mvc" Version="2.1.14" />
     <PackageReference Include="cloudscribe.Core.IdentityServer.NoDb" Version="2.1.2" />
 
-    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.3.0" />
+    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.4.0" />
     
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.2" PrivateAssets="All" />

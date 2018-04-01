@@ -48,6 +48,8 @@ namespace OPServer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
+
             // **** VERY IMPORTANT *****
             // https://www.cloudscribe.com/docs/configuring-data-protection
             // data protection keys are used to encrypt the auth token in the cookie
@@ -171,24 +173,8 @@ namespace OPServer
 
 
             }
-
-            services.AddCors(options =>
-            {
-                // this defines a CORS policy called "default"
-                options.AddPolicy("default", policy =>
-                {
-                    policy.AllowAnyOrigin()   //.WithOrigins("http://localhost:5010", "http://localhost:5011" , "http://localhost:5012", "http://localhost:50405", "https://localhost:44363")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
-            });
-
+            
             services.AddCloudscribeCoreMvc(Configuration);
-
-            // optional but recommended if you need localization 
-            // uncomment to use cloudscribe.Web.localization https://github.com/joeaudette/cloudscribe.Web.Localization
-            //services.Configure<GlobalResourceOptions>(Configuration.GetSection("GlobalResourceOptions"));
-            //services.AddSingleton<IStringLocalizerFactory, GlobalResourceManagerStringLocalizerFactory>();
 
             services.AddLocalization(options => options.ResourcesPath = "GlobalResources");
 
@@ -227,6 +213,26 @@ namespace OPServer
                 //}));
             });
 
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.AllowAnyOrigin()   //.WithOrigins("http://localhost:5010", "http://localhost:5011" , "http://localhost:5012", "http://localhost:50405", "https://localhost:44363")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
+           
+
+            // optional but recommended if you need localization 
+            // uncomment to use cloudscribe.Web.localization https://github.com/joeaudette/cloudscribe.Web.Localization
+            //services.Configure<GlobalResourceOptions>(Configuration.GetSection("GlobalResourceOptions"));
+            //services.AddSingleton<IStringLocalizerFactory, GlobalResourceManagerStringLocalizerFactory>();
+
+            
+
             
             services.Configure<MvcOptions>(options =>
             {
@@ -256,6 +262,19 @@ namespace OPServer
                     options.ViewLocationExpanders.Add(new cloudscribe.Core.Web.Components.SiteViewLocationExpander());
                 });
 
+            services.AddAuthentication()
+               .AddIdentityServerAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme, options =>
+               {
+                    //TO Test the xamarin client requires https so use IIS with the https url
+                    //options.Authority = "http://127.0.0.1:50405";
+                    options.Authority = "http://localhost:50405";
+
+                   options.ApiName = "idserverapi";
+                    //options.ApiSecret = "secret";
+                    options.RequireHttpsMetadata = false;
+                   options.SaveToken = true;
+               });
+
             //services.AddAuthentication("Bearer")
             //    .AddJwtBearer("Bearer", options =>
             //    {
@@ -264,18 +283,7 @@ namespace OPServer
             //        options.RequireHttpsMetadata = false;
             //    });
 
-            services.AddAuthentication()
-                .AddIdentityServerAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme, options =>
-                {
-                    //TO Test the xamarin client requires https so use IIS with the https url
-                    options.Authority = "http://localhost:50405";
-                    //options.Authority = "https://localhost:44363";
 
-                    options.ApiName = "idserverapi";
-                    options.ApiSecret = "secret";
-                    options.RequireHttpsMetadata = false;
-                    options.SaveToken = true;
-                });
 
         }
 
@@ -288,10 +296,12 @@ namespace OPServer
             IOptions<RequestLocalizationOptions> localizationOptionsAccessor
             )
         {
+            //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            //loggerFactory.AddDebug();
+
             if (env.IsDevelopment())
             {
-                loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-                loggerFactory.AddDebug();
+                
 
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();

@@ -29,9 +29,9 @@ namespace OPServer
 
             }
 
-            var env = host.Services.GetRequiredService<IHostingEnvironment>();
-            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-            ConfigureLogging(env, loggerFactory, host.Services);
+            //var env = host.Services.GetRequiredService<IHostingEnvironment>();
+            //var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+            //ConfigureLogging(env, loggerFactory, host.Services);
 
             host.Run();
         }
@@ -39,6 +39,13 @@ namespace OPServer
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
+                .ConfigureLogging((hostingContext, logging) =>
+                {
+                    //logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                    logging.AddConsole();
+                    logging.AddDebug();
+                    logging.SetMinimumLevel(LogLevel.Trace);
+                })
                 .Build();
 
         private static void EnsureDataStorageIsReady(IServiceProvider scopedServices)
@@ -56,11 +63,11 @@ namespace OPServer
             LogLevel minimumLevel;
             if (env.IsProduction())
             {
-                minimumLevel = LogLevel.Warning;
+                minimumLevel = LogLevel.Debug;
             }
             else
             {
-                minimumLevel = LogLevel.Information;
+                minimumLevel = LogLevel.Debug;
             }
             
             // a customizable filter for logging
