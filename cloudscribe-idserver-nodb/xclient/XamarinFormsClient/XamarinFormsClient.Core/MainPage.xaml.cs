@@ -50,6 +50,7 @@ namespace XamarinFormsClient.Core
                 Policy = new Policy()
                 {
                     Discovery = new DiscoveryPolicy() { RequireHttps = false }
+                     
                 }
                
 

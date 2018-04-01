@@ -290,6 +290,9 @@ namespace OPServer
         {
             if (env.IsDevelopment())
             {
+                loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+                loggerFactory.AddDebug();
+
                 app.UseDeveloperExceptionPage();
                 app.UseBrowserLink();
                 app.UseDatabaseErrorPage();
