@@ -20,13 +20,9 @@ namespace XamarinFormsClient.Core
         OidcClient _client;
         LoginResult _result;
         IBrowser _browser;
-
-
+        
         Lazy<HttpClient> _apiClient = new Lazy<HttpClient>(()=>new HttpClient());
-
-        //https://10.0.2.2:44363/
-        // 10.0.2.2 is an alias for localhost on the computer when using the android emulator
-
+        
         public MainPage ()
 		{
 			InitializeComponent ();
@@ -39,9 +35,9 @@ namespace XamarinFormsClient.Core
 
             var options = new OidcClientOptions
             {
+                // 10.0.2.2 is an alias for localhost on the computer when using the android emulator
                 Authority = "http://10.0.2.2:50405/", 
                 ClientId = "native.hybrid",
-                //ClientSecret = "K7gNU3sdo+OL0wNhqoVWhr3g6s1xYv72ol/pe/Unols=",
                 Scope = "openid profile email idserverapi offline_access",
                 RedirectUri = "xamarinformsclients://callback",
                 PostLogoutRedirectUri = "xamarinformsclients://callback",
@@ -50,11 +46,8 @@ namespace XamarinFormsClient.Core
                 Policy = new Policy()
                 {
                     Discovery = new DiscoveryPolicy() { RequireHttps = false }
-                     
-                }
-               
-
-
+                      
+                }   
             };
 
             _client = new OidcClient(options);
@@ -63,12 +56,7 @@ namespace XamarinFormsClient.Core
         private async void Logout_Clicked(object sender, EventArgs e)
         {
             var logoutRequest =  new LogoutRequest();
-            //logoutRequest.BrowserDisplayMode = DisplayMode.Hidden;
-            
-
-            await _client.LogoutAsync(logoutRequest);
-            
-            
+            await _client.LogoutAsync(logoutRequest);  
         }
 
         private async void Login_Clicked(object sender, EventArgs e)
@@ -93,7 +81,8 @@ namespace XamarinFormsClient.Core
             OutputText.Text = sb.ToString();
 
             _apiClient.Value.SetBearerToken(_result?.AccessToken ?? "");
-            _apiClient.Value.BaseAddress = new Uri("http://10.0.2.2:50405/"); //new Uri("https://demo.identityserver.io/");
+            // 10.0.2.2 is an alias for localhost on the computer when using the android emulator
+            _apiClient.Value.BaseAddress = new Uri("http://10.0.2.2:50405/");
 
         }
 
