@@ -29,9 +29,9 @@ namespace OPServer
 
             }
 
-            //var env = host.Services.GetRequiredService<IHostingEnvironment>();
-            //var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-            //ConfigureLogging(env, loggerFactory, host.Services);
+            var env = host.Services.GetRequiredService<IHostingEnvironment>();
+            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+            ConfigureLogging(env, loggerFactory, host.Services);
 
             host.Run();
         }
@@ -39,13 +39,6 @@ namespace OPServer
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                .ConfigureLogging((hostingContext, logging) =>
-                {
-                    //logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.AddConsole();
-                    logging.AddDebug();
-                    logging.SetMinimumLevel(LogLevel.Trace);
-                })
                 .Build();
 
         private static void EnsureDataStorageIsReady(IServiceProvider scopedServices)
@@ -60,26 +53,26 @@ namespace OPServer
             IServiceProvider serviceProvider
             )
         {
-            LogLevel minimumLevel;
-            if (env.IsProduction())
-            {
-                minimumLevel = LogLevel.Debug;
-            }
-            else
-            {
-                minimumLevel = LogLevel.Debug;
-            }
-            
-            // a customizable filter for logging
-            // add exclusions to remove noise in the logs
-            var excludedLoggers = new List<string>
-            {
-                "Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware",
-                "Microsoft.AspNetCore.Hosting.Internal.WebHost",
-            };
-
+            // a customizable filter for db logging
             Func<string, LogLevel, bool> logFilter = (string loggerName, LogLevel logLevel) =>
             {
+                LogLevel minimumLevel;
+                if (env.IsProduction())
+                {
+                    minimumLevel = LogLevel.Warning;
+                }
+                else
+                {
+                    minimumLevel = LogLevel.Debug;
+                }
+
+                // add exclusions to remove noise in the logs
+                var excludedLoggers = new List<string>
+                {
+                    "Microsoft.AspNetCore.StaticFiles.StaticFileMiddleware",
+                    "Microsoft.AspNetCore.Hosting.Internal.WebHost",
+                };
+
                 if (logLevel < minimumLevel)
                 {
                     return false;
