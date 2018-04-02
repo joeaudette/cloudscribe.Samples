@@ -126,13 +126,16 @@ namespace OPServer
 
                     var idsBuilder = services.AddIdentityServerConfiguredForCloudscribe(options => 
                     {
-                    //https://github.com/IdentityServer/IdentityServer4/issues/501
-                    //problem when using androidclient the requestcomes in as http://10.0.2.2:50405
-                    //IDX10205: Issuer validation failed. Issuer: 'http://10.0.2.2:50405'. 
-                    //Did not match: validationParameters.ValidIssuer: 'null' or validationParameters.ValidIssuers: 'http://localhost:50405'.
-                    //surprisingly this change does not break the other clients in the demo
+                        //https://github.com/IdentityServer/IdentityServer4/issues/501
+                        //problem when using androidclient the requestcomes in as http://10.0.2.2:50405
+                        //IDX10205: Issuer validation failed. Issuer: 'http://10.0.2.2:50405'. 
+                        //Did not match: validationParameters.ValidIssuer: 'null' or validationParameters.ValidIssuers: 'http://localhost:50405'.
+                        //surprisingly this change does not break the other clients in the demo
+                        // it seems that for the xamarin client the issuer must match the authority
+                        // but this does not seem to be the case for the other clients
 
                         options.IssuerUri = "http://10.0.2.2:50405";
+                        
                     }).AddCloudscribeCoreNoDbIdentityServerStorage()
                       .AddCloudscribeIdentityServerIntegrationMvc();
 
