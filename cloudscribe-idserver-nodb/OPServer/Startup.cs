@@ -124,9 +124,18 @@ namespace OPServer
                     services.AddTransient<ICorsPolicyService, IdServerCorsPolicy>();
                     services.AddTransient<IRedirectUriValidator, IdServerRedirectValidator>();
 
-                    var idsBuilder = services.AddIdentityServerConfiguredForCloudscribe()
-                        .AddCloudscribeCoreNoDbIdentityServerStorage()
-                        .AddCloudscribeIdentityServerIntegrationMvc();
+                    var idsBuilder = services.AddIdentityServerConfiguredForCloudscribe(options => 
+                    {
+                    //https://github.com/IdentityServer/IdentityServer4/issues/501
+                    //problem when using androidclient the requestcomes in as http://10.0.2.2:50405
+                    //IDX10205: Issuer validation failed. Issuer: 'http://10.0.2.2:50405'. 
+                    //Did not match: validationParameters.ValidIssuer: 'null' or validationParameters.ValidIssuers: 'http://localhost:50405'.
+                    //surprisingly this change does not break the other clients in the demo
+
+                        options.IssuerUri = "http://10.0.2.2:50405";
+                    }).AddCloudscribeCoreNoDbIdentityServerStorage()
+                      .AddCloudscribeIdentityServerIntegrationMvc();
+
                     if (Environment.IsProduction())
                     {
                         // *** IMPORTANT CONFIGURATION NEEDED HERE *** 
@@ -273,17 +282,10 @@ namespace OPServer
                     //options.ApiSecret = "secret";
                     options.RequireHttpsMetadata = false;
                    options.SaveToken = true;
+                   
                });
 
-            //services.AddAuthentication("Bearer")
-            //    .AddJwtBearer("Bearer", options =>
-            //    {
-            //        options.Authority = "http://localhost:50405";
-            //        options.Audience = "idserverapi";
-            //        options.RequireHttpsMetadata = false;
-            //    });
-
-
+           
 
         }
 
