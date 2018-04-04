@@ -1,1 +1,0 @@
-{"ApiSecrets":[],"Scopes":[{"Name":"idserverapi","DisplayName":null,"Description":null,"Required":false,"Emphasize":false,"ShowInDiscoveryDocument":false,"UserClaims":[]}],"Enabled":true,"Name":"idserverapi","DisplayName":"idserverapi","Description":"idserverapi","UserClaims":["role"]}
