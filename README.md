@@ -6,7 +6,9 @@ The main goal of this repository is to provide some working samples with pre-pop
 
 ## IdentityServer4 Integration Sample with Working Clients
 
-https://github.com/joeaudette/cloudscribe.Samples/tree/master/cloudscribe-idserver-nodb
+This sample has been moved to its own code repository here:
+
+https://github.com/cloudscribe/sample-idserver
 
 ## Client Side Development Setup
 
